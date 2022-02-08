@@ -13,14 +13,15 @@ namespace LiveSplit.NotesCreatorAPI
 
         private Thread API_Thread = new Thread(API_Thread_class.Connect);
 
-				protected static System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
-        protected static System.Net.Sockets.NetworkStream serverStream;
+				private static System.Net.Sockets.TcpClient clientSocket = new System.Net.Sockets.TcpClient();
+        private static System.Net.Sockets.NetworkStream serverStream;
+        private static Boolean tryToConnect = true;
 
         private class API_Thread_class
 				{
             public static void Connect()
 						{
-                while (!clientSocket.Connected)
+                while (!clientSocket.Connected && tryToConnect)
                     try
                     {
                         clientSocket.Connect("127.0.0.1", 8888);
@@ -35,12 +36,17 @@ namespace LiveSplit.NotesCreatorAPI
 
         private void SendToAPI(string str)
         {
-            //System.Diagnostics.Debug.WriteLine(str);
+            System.Diagnostics.Debug.WriteLine(str);
 
-            if (clientSocket.Connected)
+            try
             {
                 byte[] outStream = System.Text.Encoding.ASCII.GetBytes(str + "\n");
                 serverStream.Write(outStream, 0, outStream.Length);
+            }
+            catch (Exception)
+            {
+                if (!API_Thread.IsAlive)
+                    API_Thread.Start();
             }
         }
 
@@ -86,12 +92,14 @@ namespace LiveSplit.NotesCreatorAPI
 
 				public override void Dispose()
         {
-            API_Thread.Abort();
+            SendToAPI("closeConnection");
+            tryToConnect = false;
             m_state.OnStart -= OnStart;
             m_state.OnSplit -= OnSplit;
             m_state.OnUndoSplit -= OnUndoSplit;
             m_state.OnSkipSplit -= OnSkipSplit;
             m_state.OnReset -= OnReset;
+            API_Thread.Abort();
         }
 
         public override XmlNode GetSettings(XmlDocument document)
