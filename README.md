@@ -1,4 +1,6 @@
 # NotesCreatorAPI
-Component for LiveSplit that automatically scrolls the notes in my NotesCreator tool.
+A component for LiveSplit that connects to my notes creator tool NotesCreator (https://github.com/Xoriun/Notes-Creator).
 
-Copy the newest NotesCreatorAPI.dll into the Components folder of LiveSplit.
+## Set-up
+Download the newest NotesCreatorAPI.dll into the Components folder of LiveSplit.
+To use, open the edit menu of the LiveSplit layout you want to use together with NotesCreator and add Other -> LiveSplitAPI.
